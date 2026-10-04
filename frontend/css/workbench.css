@@ -544,16 +544,118 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   font-weight: 700;
 }
 
-/* Key Stream Section */
-.key-stream-box {
+/* Key Funnel & Reconciliation Stream Section */
+.key-stream-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.key-stream-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stream-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.stream-name {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-ink-secondary);
+}
+
+.stream-badge {
+  font-size: 10px;
   background-color: var(--color-paper-secondary);
   border: var(--border-rule);
   border-radius: var(--radius-xs);
+  padding: 1px 6px;
+  color: var(--color-ink-tertiary);
+}
+
+.stream-hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-ink-tertiary);
+  margin-top: 2px;
+}
+
+.key-stream-box {
+  display: block;
+  width: 100%;
+  background-color: var(--color-paper-secondary);
+  border: var(--border-rule);
+  border-radius: var(--radius-xs);
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  word-break: break-all;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  color: var(--color-ink);
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+.mask-box {
+  background-color: #ECE7DA;
+  color: #444038;
+}
+
+/* Final Secret Keys Highlighted Box */
+.final-keys-card {
+  border: 1.5px solid var(--color-match);
+  border-radius: var(--radius-sm);
+  background-color: #F3F8F4;
   padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.final-badge {
+  background-color: #E2EFE4;
+  border-color: var(--color-match);
+  color: var(--color-match);
+  font-weight: 700;
+}
+
+.final-key-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.final-key-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.key-actor {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  word-break: break-all;
-  line-height: 1.6;
+  font-weight: 700;
+  width: 55px;
+  color: var(--color-match);
+}
+
+.final-box {
+  background-color: #FFFFFF;
+  border-color: #A9D1B0;
+  color: var(--color-match);
+  font-weight: 700;
+  flex: 1;
 }
 
 /* Circuit Inspector Drawer */

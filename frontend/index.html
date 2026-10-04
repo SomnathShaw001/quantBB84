@@ -216,17 +216,76 @@
           <!-- Key Reconciliation Stream -->
           <div class="instrument-panel">
             <div class="panel-title-bar">
-              <span class="panel-title">Key Funnel & Reconciliation Streams</span>
-              <button class="btn" id="btn-toggle-mask" style="font-size:10px; padding:2px 8px;">Reveal Key Values</button>
+              <div>
+                <span class="panel-title">Key Funnel & Reconciliation Streams</span>
+                <div style="font-size:var(--text-xs); color:var(--color-ink-secondary); margin-top:2px;">
+                  Progression of bit streams from initial transmission through basis sifting to the final secret key.
+                </div>
+              </div>
+              <button class="btn" id="btn-toggle-mask" style="font-size:11px; padding:4px 10px;">Reveal Key Values</button>
             </div>
 
-            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-family:var(--font-mono); font-size:var(--text-xs);">
-              <div><b>Alice Raw Stream:</b> <span class="key-stream-box" id="key-raw-alice">—</span></div>
-              <div><b>Bob Raw Stream: &nbsp;</b> <span class="key-stream-box" id="key-raw-bob">—</span></div>
-              <div><b>Basis Match Mask:</b> <span class="key-stream-box" id="key-mask">—</span></div>
-              <div><b>Sifted Stream: &nbsp;&nbsp;</b> <span class="key-stream-box" id="key-sifted">—</span></div>
-              <div><b>Final Alice Key: &nbsp;</b> <span class="key-stream-box" id="key-final-alice" style="font-weight:700; color:var(--color-match);">—</span></div>
-              <div><b>Final Bob Key: &nbsp;&nbsp;&nbsp;</b> <span class="key-stream-box" id="key-final-bob" style="font-weight:700; color:var(--color-match);">—</span></div>
+            <div class="key-stream-container">
+              <!-- Stream 1: Alice Raw -->
+              <div class="key-stream-row">
+                <div class="stream-header">
+                  <span class="stream-name">1. ALICE TRANSMITTED (RAW) STREAM</span>
+                  <span class="stream-badge mono" id="badge-raw-alice">256 BITS</span>
+                </div>
+                <div class="key-stream-box mono" id="key-raw-alice">—</div>
+              </div>
+
+              <!-- Stream 2: Bob Raw -->
+              <div class="key-stream-row">
+                <div class="stream-header">
+                  <span class="stream-name">2. BOB DETECTED RAW MEASUREMENTS</span>
+                  <span class="stream-badge mono" id="badge-raw-bob">256 BITS</span>
+                </div>
+                <div class="key-stream-box mono" id="key-raw-bob">—</div>
+              </div>
+
+              <!-- Stream 3: Reconciliation Mask -->
+              <div class="key-stream-row">
+                <div class="stream-header">
+                  <span class="stream-name">3. BASIS RECONCILIATION MASK (SIFTING)</span>
+                  <span class="stream-badge mono" id="badge-mask">BASIS COMPARISON</span>
+                </div>
+                <div class="key-stream-box mono mask-box" id="key-mask">—</div>
+                <div class="stream-hint">Matching basis positions retain bits; mismatched bases are discarded as dashes (<span class="mono">-</span>).</div>
+              </div>
+
+              <!-- Stream 4: Sifted Stream -->
+              <div class="key-stream-row">
+                <div class="stream-header">
+                  <span class="stream-name">4. SIFTED RECONCILED KEY</span>
+                  <span class="stream-badge mono" id="badge-sifted">128 BITS</span>
+                </div>
+                <div class="key-stream-box mono" id="key-sifted">—</div>
+              </div>
+
+              <!-- Stream 5: Final Keys Card -->
+              <div class="final-keys-card" id="final-keys-card">
+                <div class="stream-header">
+                  <div>
+                    <span class="stream-name" style="color:var(--color-match); font-weight:700;">5. FINAL AMPLIFIED SECRET KEY (ALICE & BOB)</span>
+                    <div style="font-size:11px; color:var(--color-ink-secondary); margin-top:2px;" id="final-key-verdict-note">
+                      Post Cascade Error-Correction & Toeplitz Universal Hashing.
+                    </div>
+                  </div>
+                  <span class="stream-badge final-badge mono" id="badge-final-key">0 BITS DISTILLED</span>
+                </div>
+
+                <div class="final-key-block">
+                  <div class="final-key-line">
+                    <span class="key-actor mono">ALICE:</span>
+                    <div class="key-stream-box final-box mono" id="key-final-alice">—</div>
+                  </div>
+                  <div class="final-key-line">
+                    <span class="key-actor mono">BOB:</span>
+                    <div class="key-stream-box final-box mono" id="key-final-bob">—</div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- OTP Message Encryption Demo -->

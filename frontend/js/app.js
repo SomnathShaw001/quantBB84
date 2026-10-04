@@ -68,6 +68,12 @@ class AppController {
     this.keySifted = document.getElementById('key-sifted');
     this.keyFinalAlice = document.getElementById('key-final-alice');
     this.keyFinalBob = document.getElementById('key-final-bob');
+    this.badgeRawAlice = document.getElementById('badge-raw-alice');
+    this.badgeRawBob = document.getElementById('badge-raw-bob');
+    this.badgeMask = document.getElementById('badge-mask');
+    this.badgeSifted = document.getElementById('badge-sifted');
+    this.badgeFinalKey = document.getElementById('badge-final-key');
+    this.finalKeyNote = document.getElementById('final-key-verdict-note');
     this.btnToggleMask = document.getElementById('btn-toggle-mask');
     this.otpSection = document.getElementById('otp-section');
     this.otpPlaintext = document.getElementById('otp-plaintext');
@@ -305,17 +311,60 @@ class AppController {
   renderKeys() {
     if (!this.currentData) return;
     const k = this.currentData.keys;
+    const stages = this.currentData.stages;
+    const verdict = this.currentData.verdict;
 
-    const maskStr = str => this.keysMasked ? str.replace(/[0-9]/g, '●') : str;
+    // Format in 8-bit groups for readability and clean line-wrapping
+    const formatChunked = (str) => {
+      if (!str) return '—';
+      const masked = this.keysMasked ? str.replace(/[0-9]/g, '●') : str;
+      return masked.match(/.{1,8}/g)?.join(' ') || masked;
+    };
 
-    this.keyRawAlice.textContent = maskStr(k.alice_raw);
-    this.keyRawBob.textContent = maskStr(k.bob_raw);
-    this.keyMask.textContent = k.basis_mask;
-    this.keySifted.textContent = maskStr(k.sifted_alice);
-    this.keyFinalAlice.textContent = maskStr(k.final_alice || '[NONE — ABORTED]');
-    this.keyFinalBob.textContent = maskStr(k.final_bob || '[NONE — ABORTED]');
+    this.keyRawAlice.textContent = formatChunked(k.alice_raw);
+    this.keyRawBob.textContent = formatChunked(k.bob_raw);
+    this.keyMask.textContent = k.basis_mask ? (k.basis_mask.match(/.{1,8}/g)?.join(' ') || k.basis_mask) : '—';
+    this.keySifted.textContent = formatChunked(k.sifted_alice);
 
-    if (this.currentData.message) {
+    const isAccepted = verdict.status === 'accepted';
+    const finalLen = stages.final || 0;
+
+    if (this.badgeRawAlice) this.badgeRawAlice.textContent = `${stages.raw} BITS`;
+    if (this.badgeRawBob) this.badgeRawBob.textContent = `${stages.detected} DETECTED`;
+    if (this.badgeMask) this.badgeMask.textContent = `${stages.matched} MATCHING BASES`;
+    if (this.badgeSifted) this.badgeSifted.textContent = `${stages.matched} SIFTED BITS`;
+
+    if (isAccepted && finalLen > 0) {
+      this.keyFinalAlice.textContent = formatChunked(k.final_alice);
+      this.keyFinalBob.textContent = formatChunked(k.final_bob);
+      this.keyFinalAlice.style.color = 'var(--color-match)';
+      this.keyFinalBob.style.color = 'var(--color-match)';
+      if (this.badgeFinalKey) {
+        this.badgeFinalKey.textContent = `${finalLen} BITS DISTILLED (MATCH)`;
+        this.badgeFinalKey.className = 'stream-badge final-badge mono';
+      }
+      if (this.finalKeyNote) {
+        const hashPreview = k.hash_alice ? k.hash_alice.substring(0, 16) : '';
+        this.finalKeyNote.innerHTML = `<b>✓ Cryptographic Verification Passed:</b> Identical SHA-256 Hashes (<span class="mono">${hashPreview}...</span>)`;
+        this.finalKeyNote.style.color = 'var(--color-match)';
+      }
+    } else {
+      const abortReason = verdict.status === 'aborted' ? '[ABORTED — POSSIBLE EAVESDROPPING DETECTED]' : '[NO USABLE KEY DISTILLED]';
+      this.keyFinalAlice.textContent = abortReason;
+      this.keyFinalBob.textContent = abortReason;
+      this.keyFinalAlice.style.color = 'var(--color-eve)';
+      this.keyFinalBob.style.color = 'var(--color-eve)';
+      if (this.badgeFinalKey) {
+        this.badgeFinalKey.textContent = `0 BITS (${verdict.status.toUpperCase()})`;
+        this.badgeFinalKey.className = 'stream-badge mono';
+      }
+      if (this.finalKeyNote) {
+        this.finalKeyNote.textContent = 'Protocol aborted or key depleted during privacy amplification.';
+        this.finalKeyNote.style.color = 'var(--color-eve)';
+      }
+    }
+
+    if (this.currentData.message && isAccepted) {
       this.otpSection.style.display = 'block';
       this.otpPlaintext.textContent = this.currentData.message.plaintext;
       this.otpCipher.textContent = this.currentData.message.cipher_hex;
