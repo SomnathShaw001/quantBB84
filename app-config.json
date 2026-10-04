@@ -1,0 +1,12 @@
+{
+  "command": "python -m uvicorn backend.main:app --host 0.0.0.0 --port $X_ZOHO_CATALYST_LISTEN_PORT",
+  "env_variables": {
+    "PYTHONUNBUFFERED": "1"
+  },
+  "health_check": {
+    "path": "/api/health",
+    "status_code": 200,
+    "timeout": 15
+  },
+  "stack": "python3.12"
+}

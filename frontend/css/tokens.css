@@ -1,0 +1,75 @@
+/* BB84 Quantum Research Workbench — Design System Tokens
+   Adheres strictly to .agents/skills/no-ai-look-ui/SKILL.md
+   Aesthetic: Physics Lab Notebook & Precision Scientific Instrument
+*/
+
+:root {
+  /* Paper & Substrates */
+  --color-paper: #F4F1EA;
+  --color-paper-secondary: #ECE7DC;
+  --color-paper-elevated: #FFFFFF;
+  --color-paper-recessed: #E4DEC9;
+
+  /* Ink & Text */
+  --color-ink: #1B1B1B;
+  --color-ink-secondary: #55524B;
+  --color-ink-tertiary: #7A766E;
+  --color-ink-faint: #A6A094;
+
+  /* Strict Semantic Meaning Accents */
+  --color-rule: #C9C2B3;
+  --color-rule-faint: #DFD9CE;
+  --color-basis-z: #1B1B1B;         /* Computational / Rectilinear (+) */
+  --color-basis-x: #B7791F;         /* Diagonal (x) — Ochre */
+  --color-eve: #C2410C;             /* Eve / Disturbance / Error — Vermilion */
+  --color-match: #2F6B3A;           /* Matched / Accepted — Deep Forest Green */
+  --color-focus: #1B1B1B;
+
+  /* Typography */
+  --font-serif: "Source Serif 4", Georgia, serif;
+  --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  /* Font Sizing Scale */
+  --text-xs: 0.725rem;   /* 11.6px */
+  --text-sm: 0.8125rem;  /* 13px */
+  --text-base: 0.875rem; /* 14px */
+  --text-md: 1.0rem;     /* 16px */
+  --text-lg: 1.25rem;    /* 20px */
+  --text-xl: 1.5rem;     /* 24px */
+  --text-2xl: 1.875rem;  /* 30px */
+
+  /* Spacing Scale (4px standard base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Strict Geometry Constraints: Max 4px */
+  --radius-none: 0px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-pill: 9999px; /* Only for true circular indicator dots / state glyphs */
+
+  /* Rules & Elevation (No glows, subtle 1px border styling) */
+  --border-rule: 1px solid var(--color-rule);
+  --border-rule-faint: 1px solid var(--color-rule-faint);
+  --border-dark: 1px solid var(--color-ink);
+
+  /* Functional Transitions (No bouncy or playful motion) */
+  --trans-fast: 120ms ease-out;
+  --trans-base: 200ms ease-out;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

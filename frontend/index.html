@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BB84 Quantum Key Distribution Research Workbench</title>
+  <meta name="description" content="Interactive research instrument and educational laboratory for BB84 Quantum Key Distribution protocol powered by IBM Qiskit and AerSimulator.">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/workbench.css">
+</head>
+<body>
+
+  <!-- Master Laboratory Header -->
+  <header class="app-header">
+    <div class="header-brand">
+      <h1>BB84 QUANTUM KEY DISTRIBUTION LAB</h1>
+      <span class="header-tag">RESEARCH INSTRUMENT / V.1.0</span>
+    </div>
+    <div class="header-status">
+      <span>BACKEND: <b class="mono">QISKIT AER (CLIFFORD)</b></span>
+      <span class="status-indicator"></span>
+      <span style="font-weight:600;">SIMULATION ONLINE</span>
+    </div>
+  </header>
+
+  <!-- Navigation Strip -->
+  <nav class="nav-strip" aria-label="Section Tabs">
+    <button class="nav-tab-btn active" data-target="tab-workbench" id="tab-btn-workbench">§ 1. Workbench & Channel</button>
+    <button class="nav-tab-btn" data-target="tab-experiments" id="tab-btn-experiments">§ 2. Empirical Sweeps & Sweepers</button>
+    <button class="nav-tab-btn" data-target="tab-learn" id="tab-btn-learn">§ 3. Protocol Architecture & Learn</button>
+    <button class="nav-tab-btn" data-target="tab-viva" id="tab-btn-viva">§ 4. Examination Viva & Limitations</button>
+  </nav>
+
+  <main class="main-container">
+
+    <!-- TAB 1: WORKBENCH (Hero Instrument) -->
+    <div id="tab-workbench" class="tab-section">
+      <div class="workbench-grid">
+
+        <!-- Column 1: Control Panel -->
+        <aside class="instrument-panel" aria-label="Experiment Control Panel">
+          <div class="panel-title-bar">
+            <span class="panel-title">Console Controls</span>
+            <span class="mono" style="font-size:11px; color:var(--color-ink-tertiary);">FIG. 1A</span>
+          </div>
+
+          <!-- Presets -->
+          <div class="control-group">
+            <label class="control-label">Baseline Presets</label>
+            <div class="presets-bar">
+              <span class="preset-chip" data-preset="clean" id="preset-clean">Clean Channel</span>
+              <span class="preset-chip" data-preset="full_eve" id="preset-full-eve">100% Intercept Eve</span>
+              <span class="preset-chip" data-preset="noisy" id="preset-noisy">Noisy Fibre</span>
+              <span class="preset-chip" data-preset="stealth_eve" id="preset-stealth">Stealthy Eve (10%)</span>
+            </div>
+          </div>
+
+          <!-- Qubit Count -->
+          <div class="control-group">
+            <div class="control-label">
+              <span>Total Qubits (N)</span>
+              <span class="control-val mono" id="val-qubits">256</span>
+            </div>
+            <input type="range" id="input-qubits" min="16" max="2048" step="16" value="256">
+          </div>
+
+          <!-- Eve Eavesdropper Tap -->
+          <div class="control-group" style="border:var(--border-rule-faint); padding:var(--space-2); border-radius:var(--radius-xs);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-family:var(--font-mono); font-size:var(--text-xs); font-weight:700; color:var(--color-eve);">EVE INTERCEPT TAP</span>
+              <input type="checkbox" id="toggle-eve">
+            </div>
+            <div class="control-label" style="margin-top:var(--space-2);">
+              <span>Interception Rate</span>
+              <span class="control-val mono" id="val-eve-fraction">100%</span>
+            </div>
+            <input type="range" id="input-eve-fraction" min="0" max="1" step="0.05" value="1.0">
+
+            <div class="control-label" style="margin-top:var(--space-1);">
+              <span>Basis Strategy</span>
+            </div>
+            <select id="select-eve-strategy">
+              <option value="random">Random Basis Selection</option>
+              <option value="always_Z">Always Z (Computational +)</option>
+              <option value="always_X">Always X (Diagonal ×)</option>
+            </select>
+          </div>
+
+          <!-- Channel Noise -->
+          <div class="control-group">
+            <div class="control-label">
+              <span>Depolarizing Noise</span>
+              <span class="control-val mono" id="val-noise-depol">0%</span>
+            </div>
+            <input type="range" id="input-noise-depol" min="0" max="0.30" step="0.01" value="0.0">
+
+            <div class="control-label" style="margin-top:var(--space-1);">
+              <span>Photon Loss</span>
+              <span class="control-val mono" id="val-noise-loss">0%</span>
+            </div>
+            <input type="range" id="input-noise-loss" min="0" max="0.50" step="0.05" value="0.0">
+          </div>
+
+          <!-- Postprocessing Params -->
+          <div class="control-group">
+            <div class="control-label">
+              <span>Sample Test Sacrifice</span>
+              <span class="control-val mono" id="val-sample-fraction">25%</span>
+            </div>
+            <input type="range" id="input-sample-fraction" min="0.10" max="0.50" step="0.05" value="0.25">
+          </div>
+
+          <!-- OTP Message Input -->
+          <div class="control-group">
+            <label class="control-label" for="input-message">Message Demo (OTP)</label>
+            <input type="text" id="input-message" placeholder="e.g. QUANTUM ENCRYPTION" value="SECURE TOKEN 42" maxlength="32">
+          </div>
+
+          <div style="display:flex; align-items:center; gap:var(--space-2);">
+            <input type="checkbox" id="checkbox-fast-mode" checked>
+            <label for="checkbox-fast-mode" style="font-family:var(--font-mono); font-size:var(--text-xs);">Fast Mode (Skip Transit Delay)</label>
+          </div>
+
+          <!-- Trigger Buttons -->
+          <div class="btn-group" style="flex-direction:column;">
+            <button class="btn btn-primary" id="btn-run">RUN SIMULATION</button>
+            <div class="btn-group">
+              <button class="btn" id="btn-step" style="flex:1;">STEP QUBIT</button>
+              <button class="btn" id="btn-reset" style="flex:1;">RESET</button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Column 2: Physical Channel & Metrics Funnel -->
+        <section style="display:flex; flex-direction:column; gap:var(--space-4);" aria-label="Quantum Channel Stage">
+          
+          <!-- Optical Stage -->
+          <div class="channel-stage" id="channel-stage">
+            <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:var(--text-xs);">
+              <span>OPTICAL FIBRE PROPAGATION CHANNEL</span>
+              <span class="mono" style="color:var(--color-ink-tertiary);">FIG. 1B</span>
+            </div>
+
+            <div class="channel-pipeline">
+              <!-- Alice Transmitter -->
+              <div class="station-box">
+                <span class="station-role">ALICE</span>
+                <span class="station-meta">POLARIZED LASER</span>
+              </div>
+
+              <!-- Fibre Line & Flying Photon -->
+              <div class="fibre-line">
+                <!-- Eve Tap Station -->
+                <div class="eve-tap-station">
+                  <div class="eve-tap-box" id="eve-tap-box">
+                    <span style="font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--color-eve);">EVE TAP</span>
+                    <div style="font-family:var(--font-mono); font-size:10px; color:var(--color-ink-secondary);">INTERCEPT-RESEND</div>
+                  </div>
+                  <div class="eve-wire"></div>
+                </div>
+
+                <!-- Animated Photon Glyph -->
+                <div class="photon-glyph" id="photon-glyph" style="display:none;">│</div>
+              </div>
+
+              <!-- Bob Receiver -->
+              <div class="station-box">
+                <span class="station-role">BOB</span>
+                <span class="station-meta">BEAMSPLITTER & SPAD</span>
+              </div>
+            </div>
+
+            <!-- Realtime Transit Monitor Strip -->
+            <div class="transit-strip">
+              <div>ALICE: <span id="alice-status-bar" style="font-weight:600;">Bit: 0 | Basis: Z (|0⟩)</span></div>
+              <div>CHANNEL: <span id="eve-status-bar" style="color:var(--color-ink-tertiary);">TAP IDLE</span></div>
+              <div>BOB: <span id="bob-status-bar" style="font-weight:600;">Basis: Z → Meas: 0</span></div>
+            </div>
+          </div>
+
+          <!-- Protocol Metrics Funnel Ribbon -->
+          <div class="metric-ribbon">
+            <div class="metric-cell">
+              <div class="metric-label">1. Transmitted</div>
+              <div class="metric-value mono" id="metric-raw">0</div>
+            </div>
+            <div class="metric-cell">
+              <div class="metric-label">2. Sifted (Match)</div>
+              <div class="metric-value mono" id="metric-matched">0</div>
+            </div>
+            <div class="metric-cell">
+              <div class="metric-label">3. Test Bits</div>
+              <div class="metric-value mono" id="metric-test">0</div>
+            </div>
+            <div class="metric-cell">
+              <div class="metric-label">4. Sample QBER</div>
+              <div class="metric-value mono" id="metric-qber">0.0%</div>
+            </div>
+            <div class="metric-cell">
+              <div class="metric-label">5. Secret Key Bits</div>
+              <div class="metric-value mono" id="metric-final" style="color:var(--color-match);">0</div>
+            </div>
+          </div>
+
+          <!-- Verdict Diagnostic Banner -->
+          <div class="verdict-banner" id="verdict-banner">
+            <div class="verdict-indicator" id="verdict-indicator">⚖</div>
+            <div>
+              <h2 id="verdict-title">READY TO COMMENCE EXPERIMENT</h2>
+              <p id="verdict-reason" style="font-size:var(--text-sm); color:var(--color-ink-secondary); margin-top:2px;">
+                Configure laboratory parameters on the console and click RUN SIMULATION.
+              </p>
+            </div>
+          </div>
+
+          <!-- Key Reconciliation Stream -->
+          <div class="instrument-panel">
+            <div class="panel-title-bar">
+              <span class="panel-title">Key Funnel & Reconciliation Streams</span>
+              <button class="btn" id="btn-toggle-mask" style="font-size:10px; padding:2px 8px;">Reveal Key Values</button>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:var(--space-2); font-family:var(--font-mono); font-size:var(--text-xs);">
+              <div><b>Alice Raw Stream:</b> <span class="key-stream-box" id="key-raw-alice">—</span></div>
+              <div><b>Bob Raw Stream: &nbsp;</b> <span class="key-stream-box" id="key-raw-bob">—</span></div>
+              <div><b>Basis Match Mask:</b> <span class="key-stream-box" id="key-mask">—</span></div>
+              <div><b>Sifted Stream: &nbsp;&nbsp;</b> <span class="key-stream-box" id="key-sifted">—</span></div>
+              <div><b>Final Alice Key: &nbsp;</b> <span class="key-stream-box" id="key-final-alice" style="font-weight:700; color:var(--color-match);">—</span></div>
+              <div><b>Final Bob Key: &nbsp;&nbsp;&nbsp;</b> <span class="key-stream-box" id="key-final-bob" style="font-weight:700; color:var(--color-match);">—</span></div>
+            </div>
+
+            <!-- OTP Message Encryption Demo -->
+            <div id="otp-section" style="display:none; border-top:var(--border-rule); padding-top:var(--space-3);">
+              <div class="panel-title" style="margin-bottom:var(--space-2);">One-Time-Pad Vernam Cipher Demonstration</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--space-2); font-family:var(--font-mono); font-size:var(--text-xs);">
+                <div class="metric-cell">
+                  <div class="metric-label">Plaintext Input</div>
+                  <div id="otp-plaintext" style="font-weight:600; margin-top:4px;">—</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-label">Ciphertext (Hex XOR)</div>
+                  <div id="otp-cipher" class="mono" style="font-size:11px; margin-top:4px; word-break:break-all;">—</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-label">Bob Decrypted Text</div>
+                  <div id="otp-decrypted" style="font-weight:600; margin-top:4px; color:var(--color-match);">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Export Tools -->
+            <div style="display:flex; justify-content:flex-end; gap:var(--space-2); margin-top:var(--space-2);">
+              <button class="btn" id="btn-export-pdf">Download PDF Report</button>
+              <button class="btn" id="btn-export-json">Export JSON</button>
+              <button class="btn" id="btn-export-csv">Export CSV</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Column 3: Live Measurement Ledger -->
+        <aside class="instrument-panel ledger-column" aria-label="Measurement Ledger Table">
+          <div class="ledger-header">
+            <span class="panel-title">Measurement Ledger</span>
+            <div class="ledger-filters">
+              <select id="ledger-filter" style="font-size:11px; padding:2px 4px;">
+                <option value="all">Filter: All Transits</option>
+                <option value="keep">Kept Sifted (Match)</option>
+                <option value="discard">Discarded (Mismatch)</option>
+                <option value="error">Mismatches (Errors)</option>
+                <option value="test">Test Sacrifice</option>
+                <option value="eve">Eve Intercepted</option>
+                <option value="lost">Lost Photons</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th data-col="i">#</th>
+                  <th data-col="a_bit">A</th>
+                  <th data-col="a_basis">Bas</th>
+                  <th>St</th>
+                  <th data-col="e_bit">Eve</th>
+                  <th data-col="b_basis">B.Bas</th>
+                  <th data-col="b_bit">B</th>
+                  <th>Result</th>
+                  <th data-col="role">Role</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-tbody">
+                <tr><td colspan="9" style="text-align:center; padding:16px;">Initiating quantum state...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- History Section -->
+          <div style="border-top:var(--border-rule); padding-top:var(--space-2);">
+            <div class="panel-title" style="margin-bottom:var(--space-2);">Simulation Run History</div>
+            <div id="history-list" style="max-height:160px; overflow-y:auto;">
+              <!-- History items populated via JS -->
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+
+    <!-- TAB 2: EMPIRICAL EXPERIMENTAL SUITE -->
+    <div id="tab-experiments" class="tab-section" style="display:none;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4);">
+        
+        <!-- Sweep Experiment 1 -->
+        <div class="instrument-panel">
+          <div class="panel-title-bar">
+            <span class="panel-title">Empirical Sweep: QBER vs. Eve Interception Fraction</span>
+            <button class="btn btn-primary" id="btn-run-sweep" style="font-size:10px;">Run Empirical Sweep</button>
+          </div>
+          <div class="chart-box" id="sweep-chart-container">
+            <p style="text-align:center; padding:60px 0; color:var(--color-ink-tertiary);">Click 'Run Empirical Sweep' to execute multi-seed parameter sweep across 0% to 100% eavesdropping.</p>
+          </div>
+        </div>
+
+        <!-- Comparative Experiment 2 -->
+        <div class="instrument-panel">
+          <div class="panel-title-bar">
+            <span class="panel-title">Parallel Batches: Clean Channel vs. Active Eve</span>
+            <button class="btn btn-primary" id="btn-run-compare" style="font-size:10px;">Run Parallel Batches</button>
+          </div>
+          <div class="chart-box" id="compare-chart-container">
+            <p style="text-align:center; padding:60px 0; color:var(--color-ink-tertiary);">Click 'Run Parallel Batches' to execute side-by-side trials comparing Eve OFF vs Eve ON.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 3: LEARN BB84 PROTOCOL -->
+    <div id="tab-learn" class="tab-section" style="display:none;">
+      <article class="instrument-panel" style="max-width:960px; margin:0 auto; line-height:1.7;">
+        <h2>The BB84 Quantum Key Distribution Protocol Architecture</h2>
+        <p style="color:var(--color-ink-secondary); margin-bottom:var(--space-4);">Developed by Charles Bennett and Gilles Brassard in 1984, BB84 establishes information-theoretic secret keys guaranteed by the fundamental laws of quantum mechanics.</p>
+
+        <div class="accordion-item">
+          <div class="accordion-title">Phase 1: Quantum State Preparation & Transmission</div>
+          <div class="accordion-content">
+            Alice generates uniform random classical bits $b_A \in \{0, 1\}$ and uniform random bases $a \in \{Z, X\}$.
+            Qubits are encoded using single photons:
+            <ul>
+              <li><b>Z (Rectilinear +):</b> $0 \rightarrow |0\rangle$, $1 \rightarrow |1\rangle$</li>
+              <li><b>X (Diagonal ×):</b> $0 \rightarrow |+\rangle = \frac{|0\rangle + |1\rangle}{\sqrt{2}}$, $1 \rightarrow |-\rangle = \frac{|0\rangle - |1\rangle}{\sqrt{2}}$</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-title">Phase 2: The No-Cloning Theorem & Eve's Disturbance</div>
+          <div class="accordion-content">
+            Wootters and Zurek (1982) proved that an unknown quantum state cannot be cloned identically. When Eve attempts an <b>intercept-resend attack</b>:
+            <ol>
+              <li>Eve must choose a measurement basis without knowing Alice's basis.</li>
+              <li>Eve picks the wrong basis 50% of the time ($P(\text{basis mismatch}) = 0.5$).</li>
+              <li>When Eve's basis matches Alice's, state is measured deterministically ($0\%$ error).</li>
+              <li>When Eve's basis mismatches, measurement collapses the state into her basis. When Bob subsequently measures in Alice's basis, Bob experiences a 50% error probability.</li>
+              <li>Overall expected QBER on basis-matched qubits: $Q = 0.5 \times 0.5 = 25\%$.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-title">Phase 3: Sifting, Error Correction & Privacy Amplification</div>
+          <div class="accordion-content">
+            <p>Over a classical authenticated public channel, Alice and Bob exchange their chosen bases and discard all positions where their bases mismatched (<b>Sifting</b>, retaining ~50% of transmitted bits).</p>
+            <p>A random subset of sifted bits are publicly sacrificed to measure the <b>Quantum Bit Error Rate (QBER)</b>. If $Q > 11\%$ (Shor-Preskill security bound), the protocol immediately <b>ABORTS</b>.</p>
+            <p>If $Q \le 11\%$, remaining bits undergo <b>Cascade Error Correction</b> to eliminate channel noise, followed by <b>Toeplitz Universal Hashing (Privacy Amplification)</b> to compress the key and eliminate any partial information leaked to Eve.</p>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- TAB 4: VIVA Q&A & LIMITATIONS -->
+    <div id="tab-viva" class="tab-section" style="display:none;">
+      <article class="instrument-panel" style="max-width:960px; margin:0 auto; line-height:1.7;">
+        <h2>Academic Examination & Viva Voce Q&A Reference</h2>
+
+        <div class="accordion-item">
+          <div class="accordion-title">Q1: Why does Eve introduce an error rate of exactly 25%?</div>
+          <div class="accordion-content">
+            Alice and Bob only compare sifted positions where Alice and Bob chose the SAME basis. Eve chooses her basis randomly. In 50% of cases, Eve guesses correctly and preserves the state. In the remaining 50%, Eve chooses the conjugate basis, collapsing the state into a superposition relative to Bob's basis. Bob then measures a random bit with 50% probability of error. Hence, total QBER = $0.5 \times 0 + 0.5 \times 0.5 = 0.25$ or 25%.
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-title">Q2: Why is the threshold set to 11% instead of 25%?</div>
+          <div class="accordion-content">
+            The Shor-Preskill asymptotic bound for BB84 shows that positive secret key rate is achievable only when $1 - 2 h_2(Q) > 0$, where $h_2(Q)$ is the binary Shannon entropy. Solving $h_2(Q) = 0.5$ yields $Q \approx 11.0\%$. Above 11%, the mutual information between Alice and Bob drops below the mutual information between Alice and Eve, rendering privacy amplification mathematically unable to extract a secret key.
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-title">Q3: Does QBER = 0 prove 100% cryptographic security?</div>
+          <div class="accordion-content">
+            <b>No.</b> In finite-length key exchange, statistical fluctuation can conceal an adversary who intercepts only a tiny fraction of qubits. Furthermore, physical side-channel attacks (detector blinding, Trojan horse pulses, photon-number-splitting on multi-photon pulses) can leak key material without raising the qubit error rate.
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-title">Q4: Limitations of this software simulator</div>
+          <div class="accordion-content">
+            This simulator runs on a local Clifford stabilizer simulator (Qiskit Aer). It models single-photon BB84, depolarizing noise, bit-flip noise, and photon loss. It does not model continuous-variable QKD, detector dark count rates, phase drift, finite-key composable security bounds, or photon-number splitting (PNS) attacks on attenuated coherent states.
+          </div>
+        </div>
+      </article>
+    </div>
+
+  </main>
+
+  <!-- Circuit Inspector Side Drawer -->
+  <div class="drawer-backdrop" id="circuit-drawer" style="display:none;">
+    <aside class="drawer-panel" aria-label="Circuit & State Inspector">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:var(--border-rule); padding-bottom:var(--space-2);">
+        <span class="panel-title">Qiskit Circuit Inspector</span>
+        <button class="btn" id="btn-close-drawer" style="padding:2px 8px;">✕ Close</button>
+      </div>
+      <div id="drawer-content">
+        <!-- Dynamic circuit views populated by JS -->
+      </div>
+    </aside>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
