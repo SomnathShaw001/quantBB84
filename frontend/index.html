@@ -23,15 +23,26 @@
     </div>
   </header>
 
-  <!-- Navigation Strip -->
+  <!-- Navigation Strip with SPA Route Identifiers -->
   <nav class="nav-strip" aria-label="Section Tabs">
-    <button class="nav-tab-btn active" data-target="tab-workbench" id="tab-btn-workbench">§ 1. Workbench & Channel</button>
-    <button class="nav-tab-btn" data-target="tab-experiments" id="tab-btn-experiments">§ 2. Empirical Sweeps & Sweepers</button>
-    <button class="nav-tab-btn" data-target="tab-learn" id="tab-btn-learn">§ 3. Protocol Architecture & Learn</button>
-    <button class="nav-tab-btn" data-target="tab-viva" id="tab-btn-viva">§ 4. Examination Viva & Limitations</button>
+    <button class="nav-tab-btn active" data-target="tab-workbench" data-route="#/workbench" id="tab-btn-workbench">§ 1. Workbench & Channel</button>
+    <button class="nav-tab-btn" data-target="tab-experiments" data-route="#/experiments" id="tab-btn-experiments">§ 2. Empirical Sweeps & Key Rates</button>
+    <button class="nav-tab-btn" data-target="tab-learn" data-route="#/protocol" id="tab-btn-learn">§ 3. Protocol Architecture & Learn</button>
+    <button class="nav-tab-btn" data-target="tab-viva" data-route="#/viva" id="tab-btn-viva">§ 4. Examination Viva & Limitations</button>
   </nav>
 
   <main class="main-container">
+
+    <!-- Document Breadcrumb & Share Link Bar -->
+    <div class="page-breadcrumb-bar">
+      <div class="breadcrumb-path">
+        <span>RESEARCH INSTRUMENT</span> / <b id="breadcrumb-current-section">§ 1. WORKBENCH & OPTICAL TRANSIT</b>
+      </div>
+      <div style="display:flex; align-items:center; gap:var(--space-2);">
+        <button class="btn" id="btn-copy-share-url" style="font-size:10px; padding:2px 8px;">🔗 Copy Experiment Link</button>
+        <button class="btn" onclick="window.print()" style="font-size:10px; padding:2px 8px;">🖨 Print Lab Sheet</button>
+      </div>
+    </div>
 
     <!-- TAB 1: WORKBENCH (Hero Instrument) -->
     <div id="tab-workbench" class="tab-section">
@@ -53,6 +64,15 @@
               <span class="preset-chip" data-preset="noisy" id="preset-noisy">Noisy Fibre</span>
               <span class="preset-chip" data-preset="stealth_eve" id="preset-stealth">Stealthy Eve (10%)</span>
             </div>
+          </div>
+
+          <!-- Examiner Case Studies Walkthrough -->
+          <div class="case-studies-bar">
+            <span class="case-study-title">Examiner Case Studies:</span>
+            <button class="case-study-btn" data-case="innocent" title="Clean channel: 0% QBER">1. Innocent (0%)</button>
+            <button class="case-study-btn" data-case="textbook" title="100% Intercept: 25% QBER Abort">2. Textbook Eve (25%)</button>
+            <button class="case-study-btn" data-case="stealth" title="10% Intercept: Key safely distilled">3. Stealth (10%)</button>
+            <button class="case-study-btn" data-case="boundary" title="44% Intercept: 11% Shor-Preskill Critical Bound">4. Critical Cutoff (11%)</button>
           </div>
 
           <!-- Qubit Count -->
@@ -210,6 +230,37 @@
               <p id="verdict-reason" style="font-size:var(--text-sm); color:var(--color-ink-secondary); margin-top:2px;">
                 Configure laboratory parameters on the console and click RUN SIMULATION.
               </p>
+            </div>
+          <!-- Live Mathematical Pipeline Formula Bar -->
+          <div class="math-pipeline-bar" id="math-pipeline-bar" aria-label="Cryptographic Derivation Stage Bar">
+            <div class="pipeline-chip">
+              <span class="pipeline-chip-label">Raw (N)</span>
+              <span class="pipeline-chip-val mono" id="math-raw">256</span>
+            </div>
+            <span class="pipeline-arrow">→ (~50%)</span>
+            <div class="pipeline-chip">
+              <span class="pipeline-chip-label">Sifted (n)</span>
+              <span class="pipeline-chip-val mono" id="math-sifted">128</span>
+            </div>
+            <span class="pipeline-arrow">→ (sample)</span>
+            <div class="pipeline-chip">
+              <span class="pipeline-chip-label">Test (k)</span>
+              <span class="pipeline-chip-val mono" id="math-test">32</span>
+            </div>
+            <span class="pipeline-arrow">→ Q = E/k</span>
+            <div class="pipeline-chip">
+              <span class="pipeline-chip-label">Sample QBER</span>
+              <span class="pipeline-chip-val mono" id="math-qber">0.0%</span>
+            </div>
+            <span class="pipeline-arrow">→ [Q ≤ 11%]</span>
+            <div class="pipeline-chip">
+              <span class="pipeline-chip-label">Cascade (Leak)</span>
+              <span class="pipeline-chip-val mono" id="math-leak">0 bits</span>
+            </div>
+            <span class="pipeline-arrow">→ [Toeplitz]</span>
+            <div class="pipeline-chip" style="background:#EBF7ED; border-color:var(--color-match);">
+              <span class="pipeline-chip-label" style="color:var(--color-match); font-weight:700;">Final Secret (m)</span>
+              <span class="pipeline-chip-val mono" id="math-final" style="color:var(--color-match); font-weight:700;">56 bits</span>
             </div>
           </div>
 
@@ -389,6 +440,22 @@
           </div>
           <div class="chart-box" id="compare-chart-container">
             <p style="text-align:center; padding:60px 0; color:var(--color-ink-tertiary);">Click 'Run Parallel Batches' to execute side-by-side trials comparing Eve OFF vs Eve ON.</p>
+          </div>
+        </div>
+
+        <!-- Theoretical & Empirical Bound Chart Fig. 4 -->
+        <div class="instrument-panel" style="grid-column: span 2;">
+          <div class="panel-title-bar">
+            <div>
+              <span class="panel-title">Asymptotic Secret Key Rate vs. QBER (Shor-Preskill Bound)</span>
+              <div style="font-size:var(--text-xs); color:var(--color-ink-secondary); margin-top:2px;">
+                Fig. 4: Theoretical secret fraction $R(Q) = \max(0, 1 - 2 h_2(Q))$ with critical cutoff threshold at $Q = 11.0\%$.
+              </div>
+            </div>
+            <button class="btn" id="btn-render-keyrate" style="font-size:10px;">Refresh Theoretical Bound</button>
+          </div>
+          <div class="chart-box" id="keyrate-chart-container" style="min-height:220px;">
+            <!-- Rendered by renderKeyRateChart() -->
           </div>
         </div>
 

@@ -1,13 +1,27 @@
 /**
  * BB84 Quantum Research Workbench — Application Controller.
  * Manages simulation lifecycle, real-time animation, postprocessing inspection,
- * history, and empirical experiment suites.
+ * history, empirical experiment suites, and SPA hash routing.
  */
 
-import { runSimulation, fetchStep, runSweep, runCompare, fetchCircuit, fetchHistory, getPdfUrl } from './api.js';
+import {
+  runSimulation,
+  fetchStep,
+  runSweep,
+  runCompare,
+  fetchCircuit,
+  fetchHistory,
+  fetchSingleSimulation,
+  getPdfUrl
+} from './api.js';
 import { ChannelVisualizer } from './channel.js';
 import { MeasurementLedger } from './ledger.js';
-import { renderSweepChart, renderCompareChart } from './charts.js';
+import {
+  renderSweepChart,
+  renderCompareChart,
+  renderPolarizationDial,
+  renderKeyRateChart
+} from './charts.js';
 
 class AppController {
   constructor() {
@@ -15,14 +29,19 @@ class AppController {
     this.isStepping = false;
     this.stepIndex = 1;
     this.keysMasked = true;
+    this.keyRateRendered = false;
 
     this.initElements();
     this.initModules();
     this.bindEvents();
+    this.initRouter();
     this.loadHistory();
 
-    // Run clean baseline preset on load
-    this.applyPreset('clean');
+    // Read deep-linking params from URL if present
+    const hasCustomParams = this.readUrlParams();
+    if (!hasCustomParams) {
+      this.applyPreset('clean');
+    }
     this.executeSimulation();
   }
 
@@ -51,6 +70,10 @@ class AppController {
     this.btnExportJson = document.getElementById('btn-export-json');
     this.btnExportCsv = document.getElementById('btn-export-csv');
 
+    // Breadcrumb and share link
+    this.breadcrumbCurrentSection = document.getElementById('breadcrumb-current-section');
+    this.btnCopyShareUrl = document.getElementById('btn-copy-share-url');
+
     // Pipeline / Metrics
     this.metricRaw = document.getElementById('metric-raw');
     this.metricMatched = document.getElementById('metric-matched');
@@ -60,6 +83,14 @@ class AppController {
     this.verdictBanner = document.getElementById('verdict-banner');
     this.verdictTitle = document.getElementById('verdict-title');
     this.verdictReason = document.getElementById('verdict-reason');
+
+    // Mathematical Derivation Pipeline Bar
+    this.mathRaw = document.getElementById('math-raw');
+    this.mathSifted = document.getElementById('math-sifted');
+    this.mathTest = document.getElementById('math-test');
+    this.mathQber = document.getElementById('math-qber');
+    this.mathLeak = document.getElementById('math-leak');
+    this.mathFinal = document.getElementById('math-final');
 
     // Keys and OTP
     this.keyRawAlice = document.getElementById('key-raw-alice');
@@ -91,6 +122,8 @@ class AppController {
     this.sweepChartContainer = document.getElementById('sweep-chart-container');
     this.btnRunCompare = document.getElementById('btn-run-compare');
     this.compareChartContainer = document.getElementById('compare-chart-container');
+    this.keyRateChartContainer = document.getElementById('keyrate-chart-container');
+    this.btnRenderKeyRate = document.getElementById('btn-render-keyrate');
   }
 
   initModules() {
@@ -108,6 +141,193 @@ class AppController {
       filterSelect: document.getElementById('ledger-filter'),
       onSelectQubit: q => this.openInspector(q),
     });
+  }
+
+  initRouter() {
+    const handleRoute = () => {
+      const hash = window.location.hash || '#/workbench';
+      this.navigateTo(hash, false);
+    };
+
+    window.addEventListener('hashchange', handleRoute);
+    handleRoute();
+  }
+
+  navigateTo(hash, updateHistory = true) {
+    const routes = {
+      '#/workbench': { target: 'tab-workbench', breadcrumb: '§ 1. WORKBENCH & OPTICAL TRANSIT' },
+      '#/experiments': { target: 'tab-experiments', breadcrumb: '§ 2. EMPIRICAL SWEEPS & KEY RATES' },
+      '#/protocol': { target: 'tab-learn', breadcrumb: '§ 3. PROTOCOL ARCHITECTURE & LEARN' },
+      '#/viva': { target: 'tab-viva', breadcrumb: '§ 4. EXAMINATION VIVA & LIMITATIONS' },
+    };
+
+    const routeKey = Object.keys(routes).find(r => hash.startsWith(r)) || '#/workbench';
+    const route = routes[routeKey];
+
+    document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+      if (btn.dataset.route === routeKey) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    document.querySelectorAll('.tab-section').forEach(sec => sec.style.display = 'none');
+    const targetEl = document.getElementById(route.target);
+    if (targetEl) targetEl.style.display = 'block';
+
+    if (this.breadcrumbCurrentSection) {
+      this.breadcrumbCurrentSection.textContent = route.breadcrumb;
+    }
+
+    if (updateHistory && window.location.hash !== routeKey) {
+      window.location.hash = routeKey;
+    }
+
+    if (routeKey === '#/experiments') {
+      this.renderKeyRate();
+    }
+  }
+
+  renderKeyRate() {
+    if (this.keyRateChartContainer && !this.keyRateRendered) {
+      renderKeyRateChart(this.keyRateChartContainer);
+      this.keyRateRendered = true;
+    }
+  }
+
+  readUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    let found = false;
+    if (params.has('n')) {
+      const n = parseInt(params.get('n'), 10);
+      if (!isNaN(n)) {
+        this.qubitsInput.value = n;
+        this.qubitsVal.textContent = n;
+        found = true;
+      }
+    }
+    if (params.has('eve')) {
+      const active = params.get('eve') === '1' || params.get('eve') === 'true';
+      this.eveToggle.checked = active;
+      this.visualizer.setEveTapVisibility(active);
+      found = true;
+    }
+    if (params.has('fraction')) {
+      const frac = parseFloat(params.get('fraction'));
+      if (!isNaN(frac)) {
+        this.eveFractionInput.value = frac;
+        this.eveFractionVal.textContent = `${Math.round(frac * 100)}%`;
+        found = true;
+      }
+    }
+    if (params.has('strategy')) {
+      this.eveStrategySelect.value = params.get('strategy');
+      found = true;
+    }
+    if (params.has('depol')) {
+      const depol = parseFloat(params.get('depol'));
+      if (!isNaN(depol)) {
+        this.noiseDepolInput.value = depol;
+        this.noiseDepolVal.textContent = `${Math.round(depol * 100)}%`;
+        found = true;
+      }
+    }
+    if (params.has('loss')) {
+      const loss = parseFloat(params.get('loss'));
+      if (!isNaN(loss)) {
+        this.noiseLossInput.value = loss;
+        this.noiseLossVal.textContent = `${Math.round(loss * 100)}%`;
+        found = true;
+      }
+    }
+    if (params.has('sample')) {
+      const sample = parseFloat(params.get('sample'));
+      if (!isNaN(sample)) {
+        this.sampleFractionInput.value = sample;
+        this.sampleFractionVal.textContent = `${Math.round(sample * 100)}%`;
+        found = true;
+      }
+    }
+    if (params.has('msg')) {
+      this.messageInput.value = params.get('msg');
+      found = true;
+    }
+    return found;
+  }
+
+  copyShareableUrl() {
+    const cfg = this.getConfig();
+    const params = new URLSearchParams();
+    params.set('n', cfg.n_qubits);
+    params.set('eve', cfg.eve.enabled ? '1' : '0');
+    params.set('fraction', cfg.eve.fraction);
+    params.set('strategy', cfg.eve.strategy);
+    if (cfg.noise.depolarizing > 0) params.set('depol', cfg.noise.depolarizing);
+    if (cfg.noise.loss > 0) params.set('loss', cfg.noise.loss);
+    if (cfg.sample_fraction !== 0.25) params.set('sample', cfg.sample_fraction);
+    if (cfg.message) params.set('msg', cfg.message);
+
+    const hash = window.location.hash || '#/workbench';
+    const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}${hash}`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        if (this.btnCopyShareUrl) {
+          const orig = this.btnCopyShareUrl.textContent;
+          this.btnCopyShareUrl.textContent = '✓ Copied!';
+          setTimeout(() => { this.btnCopyShareUrl.textContent = orig; }, 2000);
+        }
+      }).catch(() => {
+        prompt('Copy experiment URL:', shareUrl);
+      });
+    } else {
+      prompt('Copy experiment URL:', shareUrl);
+    }
+  }
+
+  applyCaseStudy(caseName) {
+    if (caseName === 'innocent') {
+      this.qubitsInput.value = 256;
+      this.eveToggle.checked = false;
+      this.eveFractionInput.value = 0.0;
+      this.noiseDepolInput.value = 0.0;
+      this.noiseLossInput.value = 0.0;
+      this.sampleFractionInput.value = 0.25;
+    } else if (caseName === 'textbook') {
+      this.qubitsInput.value = 256;
+      this.eveToggle.checked = true;
+      this.eveFractionInput.value = 1.0;
+      this.eveStrategySelect.value = 'random';
+      this.noiseDepolInput.value = 0.0;
+      this.noiseLossInput.value = 0.0;
+      this.sampleFractionInput.value = 0.25;
+    } else if (caseName === 'stealth') {
+      this.qubitsInput.value = 256;
+      this.eveToggle.checked = true;
+      this.eveFractionInput.value = 0.10;
+      this.eveStrategySelect.value = 'random';
+      this.noiseDepolInput.value = 0.0;
+      this.noiseLossInput.value = 0.0;
+      this.sampleFractionInput.value = 0.25;
+    } else if (caseName === 'boundary') {
+      this.qubitsInput.value = 256;
+      this.eveToggle.checked = true;
+      this.eveFractionInput.value = 0.44; // ~11% QBER on basis matches
+      this.eveStrategySelect.value = 'random';
+      this.noiseDepolInput.value = 0.0;
+      this.noiseLossInput.value = 0.0;
+      this.sampleFractionInput.value = 0.25;
+    }
+
+    this.qubitsVal.textContent = this.qubitsInput.value;
+    this.eveFractionVal.textContent = `${Math.round(this.eveFractionInput.value * 100)}%`;
+    this.noiseDepolVal.textContent = `${Math.round(this.noiseDepolInput.value * 100)}%`;
+    this.noiseLossVal.textContent = `${Math.round(this.noiseLossInput.value * 100)}%`;
+    this.sampleFractionVal.textContent = `${Math.round(this.sampleFractionInput.value * 100)}%`;
+    this.visualizer.setEveTapVisibility(this.eveToggle.checked);
+    this.navigateTo('#/workbench');
+    this.executeSimulation();
   }
 
   bindEvents() {
@@ -128,6 +348,11 @@ class AppController {
     this.btnStep.addEventListener('click', () => this.executeStep());
     this.btnReset.addEventListener('click', () => this.resetSimulation());
 
+    // Share URL
+    if (this.btnCopyShareUrl) {
+      this.btnCopyShareUrl.addEventListener('click', () => this.copyShareableUrl());
+    }
+
     // Presets
     document.querySelectorAll('.preset-chip').forEach(chip => {
       chip.addEventListener('click', () => {
@@ -136,14 +361,18 @@ class AppController {
       });
     });
 
-    // Tabs
+    // Examiner Case Studies
+    document.querySelectorAll('.case-study-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.applyCaseStudy(btn.dataset.case);
+      });
+    });
+
+    // Navigation Tabs (triggers SPA routing)
     document.querySelectorAll('.nav-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-section').forEach(sec => sec.style.display = 'none');
-        btn.classList.add('active');
-        const target = document.getElementById(btn.dataset.target);
-        if (target) target.style.display = 'block';
+        const route = btn.dataset.route || '#/workbench';
+        this.navigateTo(route, true);
       });
     });
 
@@ -173,6 +402,12 @@ class AppController {
     // Experiments
     this.btnRunSweep.addEventListener('click', () => this.executeSweep());
     this.btnRunCompare.addEventListener('click', () => this.executeCompare());
+    if (this.btnRenderKeyRate) {
+      this.btnRenderKeyRate.addEventListener('click', () => {
+        this.keyRateRendered = false;
+        this.renderKeyRate();
+      });
+    }
 
     // Table sorting
     document.querySelectorAll('.data-table th').forEach(th => {
@@ -283,6 +518,12 @@ class AppController {
     this.metricTest.textContent = '0';
     this.metricQber.textContent = '0.0%';
     this.metricFinal.textContent = '0';
+    if (this.mathRaw) this.mathRaw.textContent = '—';
+    if (this.mathSifted) this.mathSifted.textContent = '—';
+    if (this.mathTest) this.mathTest.textContent = '—';
+    if (this.mathQber) this.mathQber.textContent = '—';
+    if (this.mathLeak) this.mathLeak.textContent = '—';
+    if (this.mathFinal) this.mathFinal.textContent = '—';
     this.verdictBanner.className = 'verdict-banner';
     this.verdictTitle.textContent = 'READY TO COMMENCE EXPERIMENT';
     this.verdictReason.textContent = 'Configure laboratory parameters and trigger RUN SIMULATION.';
@@ -298,6 +539,17 @@ class AppController {
     this.metricTest.textContent = s.test;
     this.metricQber.textContent = q.value !== null ? `${(q.value * 100).toFixed(1)}%` : '—';
     this.metricFinal.textContent = s.final;
+
+    // Update Live Mathematical Derivation Pipeline Bar
+    if (this.mathRaw) this.mathRaw.textContent = s.raw;
+    if (this.mathSifted) this.mathSifted.textContent = s.matched;
+    if (this.mathTest) this.mathTest.textContent = s.test;
+    if (this.mathQber) this.mathQber.textContent = q.value !== null ? `${(q.value * 100).toFixed(1)}%` : '—';
+    if (this.mathLeak) {
+      const leak = this.currentData.postprocess?.cascade?.leakage_bits ?? 0;
+      this.mathLeak.textContent = `${leak} bits`;
+    }
+    if (this.mathFinal) this.mathFinal.textContent = `${s.final} bits`;
   }
 
   renderVerdict() {
@@ -381,6 +633,7 @@ class AppController {
     try {
       const data = preloadedCircuit || await fetchCircuit(this.currentData.id, qubit.i);
       this.drawerContent.innerHTML = `
+        <div id="polarization-dial-mount"></div>
         <div>
           <span style="font-family:var(--font-mono); font-size:11px; text-transform:uppercase; color:var(--color-ink-secondary);">Qubit #${data.i} Analysis</span>
           <h2>Alice Preparation & Quantum State</h2>
@@ -404,6 +657,12 @@ class AppController {
           <div class="circuit-display">${data.bob.circuit}</div>
         </div>
       `;
+
+      // Mount polarization statevector dial
+      const dialMount = document.getElementById('polarization-dial-mount');
+      if (dialMount) {
+        renderPolarizationDial(dialMount, data.alice.state, data.bob.basis, data.eve ? data.eve.basis : null);
+      }
     } catch (err) {
       this.drawerContent.innerHTML = `<div style="color:var(--color-eve); padding:20px;">Failed to inspect circuit: ${err.message}</div>`;
     }
@@ -431,12 +690,16 @@ class AppController {
           </div>
         `;
         div.addEventListener('click', async () => {
-          const res = await fetch(`${API_BASE}/simulations/${item.id}`).then(r => r.json());
-          this.currentData = res;
-          this.ledger.setData(res.qubits);
-          this.renderMetrics();
-          this.renderVerdict();
-          this.renderKeys();
+          try {
+            const res = await fetchSingleSimulation(item.id);
+            this.currentData = res;
+            this.ledger.setData(res.qubits);
+            this.renderMetrics();
+            this.renderVerdict();
+            this.renderKeys();
+          } catch (err) {
+            console.error('Failed to load historic run', err);
+          }
         });
         this.historyList.appendChild(div);
       });

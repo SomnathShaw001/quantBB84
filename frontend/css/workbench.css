@@ -748,3 +748,136 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   color: var(--color-ink-secondary);
   line-height: 1.6;
 }
+
+/* Page Breadcrumb & Document Metadata Bar */
+.page-breadcrumb-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: var(--border-rule-faint);
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.breadcrumb-path {
+  color: var(--color-ink-secondary);
+}
+
+.breadcrumb-path b {
+  color: var(--color-ink);
+}
+
+/* Mathematical Pipeline Live Formula Bar */
+.math-pipeline-bar {
+  background-color: var(--color-paper-secondary);
+  border: var(--border-rule);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.pipeline-chip {
+  background-color: var(--color-paper-elevated);
+  border: var(--border-rule);
+  border-radius: var(--radius-xs);
+  padding: 3px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pipeline-chip-label {
+  font-size: 9px;
+  color: var(--color-ink-tertiary);
+  text-transform: uppercase;
+}
+
+.pipeline-chip-val {
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.pipeline-arrow {
+  color: var(--color-ink-tertiary);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* Examiner Walkthrough & Case Studies Bar */
+.case-studies-bar {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: center;
+  border-top: var(--border-rule-faint);
+  padding-top: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.case-study-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--color-ink-secondary);
+  font-weight: 700;
+}
+
+.case-study-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  border: 1px dashed var(--color-ink-secondary);
+  background-color: var(--color-paper);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  color: var(--color-ink);
+  transition: all var(--trans-fast);
+}
+
+.case-study-btn:hover {
+  border-style: solid;
+  border-color: var(--color-ink);
+  background-color: var(--color-paper-secondary);
+}
+
+/* Publication-Grade Print Stylesheet */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+  }
+
+  .app-header, .nav-strip, .instrument-panel aside, .btn, #btn-toggle-mask, .presets-bar, .case-studies-bar, #circuit-drawer {
+    display: none !important;
+  }
+
+  .main-container {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .tab-section {
+    display: block !important;
+    page-break-after: always;
+  }
+
+  .workbench-grid {
+    display: block !important;
+  }
+
+  .instrument-panel, .channel-stage, .verdict-banner, .key-stream-box {
+    border: 1px solid #000000 !important;
+    background: #FFFFFF !important;
+    box-shadow: none !important;
+  }
+}

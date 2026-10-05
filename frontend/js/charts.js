@@ -129,3 +129,124 @@ export function renderCompareChart(container, data) {
     </div>
   `;
 }
+
+/**
+ * 2D Polarization Statevector Dial SVG.
+ * Demonstrates state projection onto measurement basis axes.
+ */
+export function renderPolarizationDial(container, aliceState, bobBasis, eveBasis = null) {
+  const size = 180;
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = 62;
+
+  const angles = {
+    '|0⟩': 0,
+    '|1⟩': 90,
+    '|+⟩': 45,
+    '|−⟩': 135,
+  };
+  const deg = angles[aliceState] !== undefined ? angles[aliceState] : 0;
+  const rad = (deg * Math.PI) / 180;
+  const x = cx + r * Math.cos(rad);
+  const y = cy - r * Math.sin(rad);
+
+  // Bob measurement axes
+  let bobAxes = '';
+  if (bobBasis === 'Z') {
+    bobAxes = `
+      <line x1="${cx - r - 8}" y1="${cy}" x2="${cx + r + 8}" y2="${cy}" stroke="var(--color-ink)" stroke-width="1" stroke-dasharray="2 2" />
+      <line x1="${cx}" y1="${cy - r - 8}" x2="${cx}" y2="${cy + r + 8}" stroke="var(--color-ink)" stroke-width="1" stroke-dasharray="2 2" />
+      <text x="${cx + r + 10}" y="${cy + 3}" font-family="var(--font-mono)" font-size="9" fill="var(--color-ink)">|0⟩</text>
+      <text x="${cx}" y="${cy - r - 6}" text-anchor="middle" font-family="var(--font-mono)" font-size="9" fill="var(--color-ink)">|1⟩</text>
+    `;
+  } else {
+    const diag = (r + 8) * Math.SQRT1_2;
+    bobAxes = `
+      <line x1="${cx - diag}" y1="${cy + diag}" x2="${cx + diag}" y2="${cy - diag}" stroke="var(--color-basis-x)" stroke-width="1.2" stroke-dasharray="3 3" />
+      <line x1="${cx - diag}" y1="${cy - diag}" x2="${cx + diag}" y2="${cy + diag}" stroke="var(--color-basis-x)" stroke-width="1.2" stroke-dasharray="3 3" />
+      <text x="${cx + diag + 8}" y="${cy - diag}" font-family="var(--font-mono)" font-size="9" fill="var(--color-basis-x)">|+⟩</text>
+      <text x="${cx - diag - 12}" y="${cy - diag}" font-family="var(--font-mono)" font-size="9" fill="var(--color-basis-x)">|−⟩</text>
+    `;
+  }
+
+  let eveIndicator = '';
+  if (eveBasis) {
+    eveIndicator = `<div style="font-family:var(--font-mono); font-size:10px; color:var(--color-eve); margin-top:2px;">Eve tapped in ${eveBasis} basis</div>`;
+  }
+
+  container.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; background:var(--color-paper-secondary); border:var(--border-rule); border-radius:var(--radius-sm); padding:10px; margin-bottom:12px;">
+      <div style="font-family:var(--font-mono); font-size:10px; text-transform:uppercase; color:var(--color-ink-secondary); margin-bottom:4px; font-weight:700;">
+        2D Polarization State Projection
+      </div>
+      <svg viewBox="0 0 ${size} ${size}" style="width:${size}px; height:${size}px;">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--color-rule)" stroke-width="1" />
+        <circle cx="${cx}" cy="${cy}" r="2" fill="var(--color-ink)" />
+        ${bobAxes}
+        <!-- State Vector Arrow -->
+        <line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--color-ink)" stroke-width="2.5" />
+        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" fill="var(--color-match)" stroke="var(--color-ink)" stroke-width="1" />
+      </svg>
+      <div style="font-family:var(--font-mono); font-size:11px; margin-top:4px; text-align:center;">
+        State: <b>${aliceState} (${deg}°)</b> | Basis: <b>${bobBasis}</b>
+      </div>
+      ${eveIndicator}
+    </div>
+  `;
+}
+
+/**
+ * Shor-Preskill Secret Key Rate Curve Chart.
+ * Plots R(Q) = max(0, 1 - 2*h(Q)) and marks the critical 11% cutoff.
+ */
+export function renderKeyRateChart(container) {
+  const width = 640;
+  const height = 240;
+  const padLeft = 45;
+  const padRight = 30;
+  const padTop = 25;
+  const padBottom = 35;
+  const plotW = width - padLeft - padRight;
+  const plotH = height - padTop - padBottom;
+
+  const h2 = p => {
+    if (p <= 0 || p >= 1) return 0;
+    return -p * Math.log2(p) - (1 - p) * Math.log2(1 - p);
+  };
+
+  const scaleX = q => padLeft + (q / 0.25) * plotW;
+  const scaleY = r => padTop + plotH - (r / 1.0) * plotH;
+
+  let pathD = '';
+  for (let q = 0; q <= 0.25; q += 0.005) {
+    const rate = Math.max(0, 1 - 2 * h2(q));
+    const px = scaleX(q);
+    const py = scaleY(rate);
+    pathD += `${q === 0 ? 'M' : 'L'} ${px.toFixed(1)} ${py.toFixed(1)} `;
+  }
+
+  const cutoffX = scaleX(0.11);
+  const cutoffY = scaleY(0);
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; display:block;">
+      <line x1="${padLeft}" y1="${padTop + plotH}" x2="${width - padRight}" y2="${padTop + plotH}" stroke="var(--color-ink)" stroke-width="1.5" />
+      <line x1="${padLeft}" y1="${padTop}" x2="${padLeft}" y2="${padTop + plotH}" stroke="var(--color-ink)" stroke-width="1.5" />
+      
+      <!-- Critical 11% line -->
+      <line x1="${cutoffX}" y1="${padTop}" x2="${cutoffX}" y2="${padTop + plotH}" stroke="var(--color-eve)" stroke-dasharray="3 3" stroke-width="1.2" />
+      <text x="${cutoffX + 4}" y="${padTop + 14}" font-family="var(--font-mono)" font-size="10" fill="var(--color-eve)">Q_crit = 11.0% (R = 0)</text>
+
+      <!-- Curve -->
+      <path d="${pathD}" fill="none" stroke="var(--color-match)" stroke-width="2" />
+      
+      <!-- Axis Labels -->
+      <text x="${width / 2}" y="${height - 6}" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--color-ink)">Quantum Bit Error Rate QBER (0 to 25%)</text>
+      <text x="12" y="${height / 2}" text-anchor="middle" transform="rotate(-90 12,${height / 2})" font-family="var(--font-mono)" font-size="10" fill="var(--color-ink)">Key Rate R(Q)</text>
+    </svg>
+    <div class="chart-caption">
+      <b>Fig. 4 — Shor-Preskill Asymptotic Key Rate $R(Q) = 1 - 2h_2(Q)$.</b> Above the critical 11% threshold, the mutual information $I(A:B) < I(A:E)$, dropping distillable key rate to exactly 0.
+    </div>
+  `;
+}
