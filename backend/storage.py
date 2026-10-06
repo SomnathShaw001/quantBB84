@@ -8,10 +8,11 @@ from __future__ import annotations
 import json
 import sqlite3
 import time
+import os
 from pathlib import Path
 from typing import Any
 
-DB_PATH = Path("simulations.db")
+DB_PATH = Path(os.environ.get("DATABASE_PATH", "simulations.db"))
 
 
 def init_db(db_path: Path = DB_PATH) -> None:

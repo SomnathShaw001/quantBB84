@@ -10,12 +10,15 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .api.routes import router as api_router
 from .storage import init_db
+
+load_dotenv()
 
 app = FastAPI(
     title="BB84 Quantum Key Distribution Simulator",
@@ -24,9 +27,12 @@ app = FastAPI(
 )
 
 # CORS configuration
+raw_cors = os.environ.get("CORS_ALLOW_ORIGINS", "*")
+allowed_origins = [o.strip() for o in raw_cors.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins if allowed_origins else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
