@@ -2,8 +2,14 @@
    Strict adherence to Physics Lab Notebook aesthetic.
 */
 
-*, *::before, *::after {
+html {
   box-sizing: border-box;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
   margin: 0;
   padding: 0;
 }
@@ -15,6 +21,9 @@ body {
   font-size: var(--text-base);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
 }
 
 /* Base Headers */
@@ -45,12 +54,17 @@ p, span, label {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header-brand {
   display: flex;
   align-items: baseline;
   gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
 .header-tag {
@@ -69,6 +83,7 @@ p, span, label {
   gap: var(--space-4);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
+  flex-wrap: wrap;
 }
 
 .status-indicator {
@@ -77,6 +92,7 @@ p, span, label {
   height: 8px;
   border-radius: var(--radius-pill);
   background-color: var(--color-match);
+  flex-shrink: 0;
 }
 
 /* Section Nav Tabs */
@@ -87,6 +103,10 @@ p, span, label {
   display: flex;
   gap: var(--space-4);
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .nav-tab-btn {
@@ -102,6 +122,8 @@ p, span, label {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: color var(--trans-fast), border-color var(--trans-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-tab-btn:hover {
@@ -116,37 +138,47 @@ p, span, label {
 
 /* Main Layout */
 .main-container {
-  max-width: 1600px;
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
   padding: var(--space-4) var(--space-6);
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* §1 Workbench 3-Column Grid */
 .workbench-grid {
   display: grid;
-  grid-template-columns: 310px 1fr 420px;
+  grid-template-columns: 290px minmax(0, 1fr) 380px;
   gap: var(--space-4);
   align-items: start;
+  width: 100%;
+  min-width: 0;
 }
 
-@media (max-width: 1200px) {
+.workbench-grid > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 1240px) {
   .workbench-grid {
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 280px minmax(0, 1fr);
   }
   .ledger-column {
-    grid-column: span 2;
+    grid-column: 1 / -1;
   }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 920px) {
   .workbench-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .ledger-column {
-    grid-column: span 1;
+    grid-column: auto;
   }
 }
 
@@ -291,17 +323,20 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   border: var(--border-rule);
   border-radius: var(--radius-sm);
   background-color: var(--color-paper-secondary);
-  /* Subtle graph paper grid pattern */
   background-image: 
     linear-gradient(var(--color-rule-faint) 1px, transparent 1px),
     linear-gradient(90deg, var(--color-rule-faint) 1px, transparent 1px);
   background-size: 20px 20px;
-  padding: var(--space-6);
+  padding: var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-5);
   position: relative;
-  min-height: 380px;
+  min-height: 340px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .channel-pipeline {
@@ -311,16 +346,21 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   margin-top: auto;
   margin-bottom: auto;
   position: relative;
+  width: 100%;
+  min-width: 0;
+  padding-top: 45px;
 }
 
 .station-box {
   background-color: var(--color-paper-elevated);
   border: 1.5px solid var(--color-ink);
   border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-4);
-  width: 130px;
+  padding: var(--space-2) var(--space-3);
+  width: clamp(80px, 18vw, 120px);
   text-align: center;
   z-index: 2;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .station-role {
@@ -344,25 +384,32 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 30px;
 }
 
 .eve-tap-station {
   position: absolute;
-  top: -85px;
+  top: -75px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
+  z-index: 3;
 }
 
 .eve-tap-box {
   background-color: var(--color-paper-elevated);
   border: 1.5px dashed var(--color-eve);
   border-radius: var(--radius-sm);
-  padding: var(--space-2) var(--space-3);
+  padding: 3px 8px;
   text-align: center;
-  min-width: 120px;
+  width: clamp(85px, 20vw, 115px);
+  box-sizing: border-box;
+  font-size: 11px;
   transition: all var(--trans-base);
+  white-space: nowrap;
 }
 
 .eve-tap-box.active {
@@ -372,7 +419,7 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
 
 .eve-wire {
   width: 2px;
-  height: 24px;
+  height: 20px;
   background-color: var(--color-eve);
 }
 
@@ -402,6 +449,9 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   padding-top: var(--space-3);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  width: 100%;
 }
 
 /* Live Ledger Component */
@@ -411,23 +461,32 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   align-items: center;
   border-bottom: var(--border-rule);
   padding-bottom: var(--space-2);
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 .ledger-filters {
   display: flex;
   gap: var(--space-2);
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .table-container {
   overflow-y: auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   max-height: 480px;
   border: var(--border-rule);
   background-color: var(--color-paper-elevated);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .data-table {
   width: 100%;
+  min-width: 440px;
   border-collapse: collapse;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -774,15 +833,19 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   background-color: var(--color-paper-secondary);
   border: var(--border-rule);
   border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   display: flex;
   align-items: center;
   gap: var(--space-2);
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--color-ink);
   white-space: nowrap;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .pipeline-chip {
@@ -793,6 +856,7 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  flex-shrink: 0;
 }
 
 .pipeline-chip-label {
@@ -810,6 +874,45 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   color: var(--color-ink-tertiary);
   font-weight: 700;
   font-size: 12px;
+  flex-shrink: 0;
+}
+
+/* §2 Empirical Experiments Responsive Grid */
+.experiments-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  width: 100%;
+  min-width: 0;
+}
+
+.experiments-grid .full-span {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 960px) {
+  .experiments-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* OTP Vernam Cipher Demonstration Grid */
+.otp-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  width: 100%;
+  min-width: 0;
+}
+
+/* Scalable Responsive Vector Charts */
+.chart-box svg {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
 }
 
 /* Examiner Walkthrough & Case Studies Bar */
@@ -847,6 +950,129 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
   border-style: solid;
   border-color: var(--color-ink);
   background-color: var(--color-paper-secondary);
+}
+
+/* Cross-Device Tablet & Mobile Polish Breakpoints */
+@media (max-width: 768px) {
+  .app-header {
+    padding: var(--space-2) var(--space-3);
+  }
+  .app-header h1 {
+    font-size: var(--text-lg);
+  }
+  .header-brand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .header-status {
+    font-size: 10px;
+    gap: var(--space-2);
+    width: 100%;
+  }
+  .nav-strip {
+    padding: 0 var(--space-3);
+    gap: var(--space-2);
+  }
+  .nav-tab-btn {
+    padding: var(--space-2) var(--space-2);
+    font-size: 11px;
+  }
+  .main-container {
+    padding: var(--space-3) var(--space-3);
+    gap: var(--space-4);
+  }
+  .page-breadcrumb-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+  .channel-stage {
+    padding: var(--space-3);
+    min-height: 290px;
+  }
+  .station-box {
+    width: 84px;
+    padding: 4px 6px;
+  }
+  .station-role {
+    font-size: 12px;
+  }
+  .station-meta {
+    font-size: 9px;
+  }
+  .eve-tap-station {
+    top: -62px;
+  }
+  .eve-tap-box {
+    width: 84px;
+    padding: 2px 4px;
+    font-size: 9px;
+  }
+  .eve-wire {
+    height: 14px;
+  }
+  .transit-strip {
+    flex-direction: column;
+    align-items: center;
+    font-size: 10px;
+    gap: 2px;
+  }
+  .metric-ribbon {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: var(--space-2);
+  }
+  .metric-cell {
+    padding: 6px 8px;
+  }
+  .metric-value {
+    font-size: var(--text-md);
+  }
+  .verdict-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+  .drawer-panel {
+    width: 100vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header h1 {
+    font-size: 1.1rem;
+  }
+  .station-box {
+    width: 70px;
+    padding: 3px 4px;
+  }
+  .station-role {
+    font-size: 11px;
+  }
+  .eve-tap-station {
+    top: -55px;
+  }
+  .eve-tap-box {
+    width: 70px;
+    font-size: 8px;
+    padding: 2px 3px;
+  }
+  .final-key-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .key-actor {
+    width: auto;
+  }
+  .btn-group {
+    flex-direction: column;
+    width: 100%;
+  }
+  .btn-group .btn {
+    width: 100%;
+  }
 }
 
 /* Publication-Grade Print Stylesheet */

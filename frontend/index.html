@@ -231,6 +231,8 @@
                 Configure laboratory parameters on the console and click RUN SIMULATION.
               </p>
             </div>
+          </div>
+
           <!-- Live Mathematical Pipeline Formula Bar -->
           <div class="math-pipeline-bar" id="math-pipeline-bar" aria-label="Cryptographic Derivation Stage Bar">
             <div class="pipeline-chip">
@@ -342,7 +344,7 @@
             <!-- OTP Message Encryption Demo -->
             <div id="otp-section" style="display:none; border-top:var(--border-rule); padding-top:var(--space-3);">
               <div class="panel-title" style="margin-bottom:var(--space-2);">One-Time-Pad Vernam Cipher Demonstration</div>
-              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--space-2); font-family:var(--font-mono); font-size:var(--text-xs);">
+              <div class="otp-metric-grid">
                 <div class="metric-cell">
                   <div class="metric-label">Plaintext Input</div>
                   <div id="otp-plaintext" style="font-weight:600; margin-top:4px;">—</div>
@@ -419,7 +421,7 @@
 
     <!-- TAB 2: EMPIRICAL EXPERIMENTAL SUITE -->
     <div id="tab-experiments" class="tab-section" style="display:none;">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4);">
+      <div class="experiments-grid">
         
         <!-- Sweep Experiment 1 -->
         <div class="instrument-panel">
@@ -444,7 +446,7 @@
         </div>
 
         <!-- Theoretical & Empirical Bound Chart Fig. 4 -->
-        <div class="instrument-panel" style="grid-column: span 2;">
+        <div class="instrument-panel full-span">
           <div class="panel-title-bar">
             <div>
               <span class="panel-title">Asymptotic Secret Key Rate vs. QBER (Shor-Preskill Bound)</span>
