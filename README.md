@@ -177,6 +177,15 @@ python scripts/verify_live.py
 ```
 
 ---
+---
+
+## Zoho Catalyst Deployment
+
+- **Zoho Catalyst Slate (Static Frontend):** Deploys directly from Git or folder upload. The root `index.html` launches the workbench. When running without an active Python server, the simulator automatically runs its browser-based mathematical BB84 engine (`client_sim.js`). To point Slate to a remote AppSail backend, use `?api=https://<your-appsail>.catalystappsail.in/api`.
+- **Zoho Catalyst AppSail (Backend & Container):** Runs full Python runtime with IBM Qiskit and Qiskit-Aer via `Dockerfile` or `main.py` on port `X_ZOHO_CATALYST_LISTEN_PORT`.
+
+---
+
 
 ## License & Attribution
 Academic and research simulator developed for quantum cryptography instruction. Core quantum stabilizer simulation powered by IBM Qiskit.

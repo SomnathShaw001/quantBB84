@@ -379,7 +379,12 @@ class AppController {
     // Exports
     this.btnExportPdf.addEventListener('click', () => {
       if (this.currentData && this.currentData.id) {
-        window.open(getPdfUrl(this.currentData.id), '_blank');
+        const pdfUrl = getPdfUrl(this.currentData.id);
+        if (pdfUrl) {
+          window.open(pdfUrl, '_blank');
+        } else {
+          window.print();
+        }
       }
     });
 

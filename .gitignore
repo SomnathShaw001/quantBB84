@@ -6,6 +6,7 @@ __pycache__/
 htmlcov/
 *.db
 .env
-.catalyst/
+.catalyst/*
+!.catalyst/slate-config.toml
 node_modules/
 catalyst-debug.log

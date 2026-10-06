@@ -11,5 +11,11 @@
         "catalyst-debug.log"
       ]
     }
+  ],
+  "slate": [
+    {
+      "name": "quantbb84",
+      "source": "frontend"
+    }
   ]
 }
