@@ -1,8 +1,12 @@
 # BB84 Quantum Key Distribution Simulator & Research Workbench
 
-An authoritative, full-stack quantum cryptography laboratory and interactive research instrument modeling the **Bennett-Brassard 1984 (BB84)** Quantum Key Distribution protocol. Backed by **IBM Qiskit Aer** (Clifford stabilizer simulation), this workbench implements the complete quantum physical layer, noisy fibre transmission, Eve intercept-resend eavesdropping, 4-pass Cascade error correction with backtracking, Toeplitz universal hashing privacy amplification, and an OTP Vernam cipher demonstration.
+> **Interactive research laboratory and precision instrument modeling the Bennett-Brassard 1984 (BB84) QKD protocol. Powered by IBM Qiskit Aer stabilizer simulation and standalone in-browser mathematical engines.**
 
-Built strictly under the **Physics Lab Notebook / Research Instrument** design direction (zero AI slop, no glow/gradients, high-density scientific typography, meaning-encoded palettes).
+🌐 **Live Instrument:** [https://quantbb84-wjxseyvo.onslate.in](https://quantbb84-wjxseyvo.onslate.in) • ⚡ **Status:** Deployed & Active • 📦 **Stack:** Python 3.12 / FastAPI / Qiskit / Vanilla JS
+
+An authoritative quantum cryptography laboratory modeling single-photon state preparation, depolarizing/lossy optical channels, Eve intercept-resend attacks, 4-pass Cascade error correction with bidirectional backtracking, Toeplitz universal hashing privacy amplification, and One-Time Pad Vernam cipher encryption.
+
+Built strictly under the **Physics Lab Notebook / Research Instrument** design direction (zero AI slop, no glow/gradients, high-density scientific typography, semantic palettes).
 
 ---
 
