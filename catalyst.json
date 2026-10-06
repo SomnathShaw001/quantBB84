@@ -1,0 +1,15 @@
+{
+  "appsail": [
+    {
+      "source": ".",
+      "name": "bb84-simulator",
+      "ignore": [
+        ".venv/**",
+        ".git/**",
+        ".pytest_cache/**",
+        "simulations.db",
+        "catalyst-debug.log"
+      ]
+    }
+  ]
+}

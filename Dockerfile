@@ -15,9 +15,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ ./backend/
 COPY frontend/ ./frontend/
 COPY scripts/ ./scripts/
+COPY main.py .
 
 # Default AppSail port environment variable
 ENV X_ZOHO_CATALYST_LISTEN_PORT=8000
 EXPOSE 8000
 
-CMD ["sh", "-c", "python -m uvicorn backend.main:app --host 0.0.0.0 --port ${X_ZOHO_CATALYST_LISTEN_PORT:-8000}"]
+CMD ["sh", "-c", "python main.py"]

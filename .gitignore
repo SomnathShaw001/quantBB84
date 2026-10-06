@@ -8,3 +8,4 @@ htmlcov/
 .env
 .catalyst/
 node_modules/
+catalyst-debug.log
