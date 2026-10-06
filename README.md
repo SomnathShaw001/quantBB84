@@ -6,19 +6,6 @@ Built strictly under the **Physics Lab Notebook / Research Instrument** design d
 
 ---
 
-## Table of Contents
-- [Theoretical Foundations](#theoretical-foundations)
-- [Architectural Highlights](#architectural-highlights)
-- [Web Application Architecture (SPA)](#web-application-architecture-spa)
-- [Repository Structure](#repository-structure)
-- [Configuration & Environment Variables](#configuration--environment-variables)
-- [Quick Start](#quick-start)
-- [Running Tests & Design Validation](#running-tests--design-validation)
-- [Zoho Catalyst AppSail & Docker Deployment](#zoho-catalyst-appsail--docker-deployment)
-- [Academic Defense & Viva Voce Reference](#academic-defense--viva-voce-reference)
-- [License & Attribution](#license--attribution)
-
----
 
 ## Theoretical Foundations
 
@@ -63,28 +50,7 @@ where $h_2(p) = -p \log_2(p) - (1-p) \log_2(1-p)$ is the binary Shannon entropy.
 
 ---
 
-## Web Application Architecture (SPA)
 
-The user interface is a **single-domain, multi-page web application** adhering to the *Physics Lab Notebook* aesthetic:
-- **Client-Side Hash Router (`frontend/js/app.js`):**
-  - `#/workbench` — Interactive Quantum Channel, Console, Transit Monitor, Measurement Ledger, and Key Funnel.
-  - `#/experiments` — Empirical Parameter Sweeps (QBER vs. Interception %), Parallel Batch Trials, and Shor-Preskill Asymptotic Bound chart (Fig. 4).
-  - `#/protocol` — Mathematical 3-phase protocol architecture and proofs.
-  - `#/viva` — Viva Voce oral examination defenses, derivations, and physical boundaries.
-- **Document Breadcrumbs & Deep Linking:** Synchronously updates hierarchy. The **Copy Experiment Link** button generates shareable URLs with current parameters (`?n=256&eve=1&fraction=0.44#/workbench`).
-- **Live Mathematical Derivation Ribbon:** Dynamically tracks every stage of key distillation in real time:
-  $$\text{Raw } (N) \rightarrow \text{Sifted } (n) \rightarrow \text{Test } (k) \rightarrow \text{Sample QBER } (Q) \rightarrow \text{Cascade Leakage} \rightarrow \text{Final Key } (m)$$
-- **4 Examiner Case Studies (One-Click Demos):**
-  1. *Innocent (0% QBER):* Clean channel, full key distillation.
-  2. *Textbook Eve (25% QBER):* 100% Intercept-resend, immediate security abort.
-  3. *Stealth Eve (10% Intercept):* Low-rate eavesdropping, error-corrected and safely distilled with privacy amplification penalty.
-  4. *Critical Cutoff (11% Shor-Preskill Bound):* Boundary condition demonstrating asymptotic cutoff where key rate drops to 0.
-- **Scientific Visualizations (`frontend/js/charts.js`):**
-  - *2D Polarization Statevector Dial:* Visualizes photon polarization angles ($0^\circ, 90^\circ, 45^\circ, 135^\circ$), Alice's preparation, Bob's basis, and Eve's interception axis.
-  - *Shor-Preskill Curve:* Theoretical secret fraction curve with critical 11% cutoff marker.
-- **Publication-Grade Print Stylesheet:** `@media print` rules format the page into an academic lab notebook record.
-
----
 
 ## Repository Structure
 
@@ -209,48 +175,6 @@ python scripts/ui_gate.py frontend
 ```bash
 python scripts/verify_live.py
 ```
-
----
-
-## Zoho Catalyst AppSail & Docker Deployment
-
-The application is pre-configured for **Zoho Catalyst AppSail** as a unified single-service container (serving both the FastAPI backend and static frontend with zero cross-origin issues).
-
-### Option A: Deploy via Docker (Local or CI)
-```bash
-# Build production image
-docker build -t bb84-simulator:latest .
-
-# Run container locally
-docker run -p 8000:8000 bb84-simulator:latest
-```
-
-### Option B: Deploy to Zoho Catalyst AppSail (Console)
-1. Open your [Zoho Catalyst Console](https://console.catalyst.zoho.com/).
-2. Select your project and navigate to **AppSail** $\rightarrow$ **bb84-simulator**.
-3. Under **Deploy**, connect this GitHub repository (`SomnathShaw001/quantBB84`) and select `Dockerfile`.
-4. Catalyst builds and launches the container automatically on your custom `*.catalystappsail.in` domain.
-
----
-
-## Academic Defense & Viva Voce Reference
-
-### Q1: Why does Eve introduce an error rate of exactly 25%?
-Alice and Bob compare bits only where they coincidentally chose the *same* basis ($P = 0.5$). Eve intercepts each qubit and must choose a basis at random:
-- In $50\%$ of cases, Eve guesses Alice's basis correctly: the state is measured without disturbance and resent intact ($0\%$ error).
-- In $50\%$ of cases, Eve chooses the conjugate basis: the measurement collapses the state into her basis. When Bob subsequently measures in Alice's basis, Bob obtains a random bit ($50\%$ error).
-- Total expected error on sifted bits: $0.5 \times 0 + 0.5 \times 0.5 = 0.25$ (**$25\%$**).
-
-### Q2: Why is the threshold set to 11% instead of 25%?
-The Shor-Preskill asymptotic bound proves that a positive secret key rate is extractable only when:
-$$1 - 2 h_2(Q) > 0 \implies h_2(Q) < 0.5 \implies Q < 11.0\%$$
-Above $11\%$, the mutual information $I(A:B)$ between Alice and Bob drops below the mutual information $I(A:E)$ leaked to Eve, rendering privacy amplification mathematically unable to isolate a secure key.
-
-### Q3: Does QBER = 0 prove 100% cryptographic security?
-**No.** In finite key exchanges, statistical fluctuation can conceal an eavesdropper intercepting only a small fraction of qubits. Additionally, physical side-channel vulnerabilities (detector blinding attacks, Trojan horse pulses, and photon-number-splitting attacks on multi-photon pulses) can leak key material without raising the qubit error rate.
-
-### Q4: What are the physical boundaries of this software simulator?
-This simulator runs on a local Clifford stabilizer simulator (Qiskit Aer). It models single-photon BB84, depolarizing noise, bit-flip noise, and photon loss. It does not model continuous-variable QKD, detector dark count rates, phase drift, finite-key composable security bounds, or photon-number splitting (PNS) attacks on attenuated coherent states.
 
 ---
 
